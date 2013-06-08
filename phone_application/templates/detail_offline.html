@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+
+
+
+{% block content %}
+
+
+<script type="text/javascript">
+
+function getQuerystring2(key, default_) 
+{ 
+    if (default_==null) 
+    { 
+        default_=""; 
+    } 
+    var search = unescape(location.search); 
+    if (search == "") 
+    { 
+        return default_; 
+    } 
+    search = search.substr(1); 
+    var params = search.split("&"); 
+    for (var i = 0; i < params.length; i++) 
+    { 
+        var pairs = params[i].split("="); 
+        if(pairs[0] == key) 
+        { 
+// 	    alert(pairs[1]);
+	    p = params[1].split(".")[0]
+// 	    alert(p);
+	    return p; 
+        } 
+    } 
+
+
+return default_; 
+}
+
+
+
+$(function() {
+
+
+	      // document.write(location.search);
+	      var tt = getQuerystring2("key", location.search);
+	      tt = tt.split("=")[1];
+// 	      alert(tt)
+
+
+	      var article_fields = JSON.parse(localStorage.getItem("article_"+tt.toString()));
+	      console.log(article_fields)
+	      var article_value = article_fields.value;
+	      var article_key = article_fields.key;
+
+// 	      alert(article_key)
+
+	      $("#article").html(
+	      "<center><h3>"+tt+". "+article_key+"</h3><center>"+
+	      "</br><article style='background-color:rgba(255, 255, 255, 0.4)'>"+article_value+"</article>"+    
+	      "</br></br></br>"
+	      );
+
+});
+</script>
+
+<div id="article">
+	    </br></br>
+	    <center><h3 style='background-color:rgba(255, 255, 255, 0.4)'>Brak artykułu</h3></center>
+	    </br></br></br></br></br></br></br></br></br>
+</div>
+
+
+
+
+
+{% endblock %} 

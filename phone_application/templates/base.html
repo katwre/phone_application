@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+
+<html lang="en" manifest="{% url 'cache_manifest' %}">
+<!-- <html> -->
+    <head>
+        <title>Phone app</title>
+	<meta charset="UTF-8">
+
+
+
+
+	<link href="{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+<!-- bootstrap -->
+	<link href="{{ STATIC_URL }}bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
+ 
+	<LINK href="{{ STATIC_URL }}my_style.css" rel="stylesheet" type="text/css">
+
+	{% block head %}
+        {% endblock %}
+
+
+    </head>
+    <body>
+<!-- bootstrap -->
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.2.js"></script>
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+
+
+<span class="visible-phone">
+<div class="container-fluid .visible-phone" style="background: #FFF">
+ <div class="row-fluid" style="background-image: url('{{ STATIC_URL }}/images/art4.jpg');background-size:100% 100%;;
+ background-repeat:no-repeat;
+ display: compact;">
+
+	<div class="navbar navbar-inverse">
+	  <div class="navbar-inner">
+	    <a class="brand active" href="{% url 'home' %}"><i class="icon-home"></i></a></a>
+	    <ul class="nav">
+	      <li><button id="download" class="btn btn-info"><i class="icon-download"></i></button></li>
+	      <li id="back"><a href=""></a></li>
+	      <li id="line"><span id="line" class="badge badge-success">online</span></li>
+	    </ul>
+	  </div>
+	</div>
+
+
+			  {% block content %}
+			  {% endblock %}
+
+  </div>
+</div>
+
+
+</span>
+
+
+
+<script type="text/javascript">
+    
+    function change_tag(online) {
+      var ii = $("span#line")
+      if(online){
+      ii.addClass("badge-success")
+      ii.text("online")
+      }else{
+      ii.removeClass("badge-success")
+      ii.text("offline")
+      }
+    }
+
+
+
+
+
+function ISODateString(d){
+  function pad(n){return n<10 ? '0'+n : n}
+  return d.getUTCFullYear()+'-'
+      + pad(d.getMonth()+1)+'-'
+      + pad(d.getDate())+'T'
+      + pad(d.getHours())+':'
+      + pad(d.getMinutes())+':'
+      + pad(d.getSeconds())+'Z'
+}
+
+
+
+function keys_to_string(r){
+	var l = "["
+	for(var i=0; i<r.length; i++){
+	      if(i == r.length-1){	l  = l + '"' +r[i][1] + '. ' +r[i][0] + '"'
+	      }else{		l  = l + '"' +r[i][1] + '. ' +r[i][0] + '",' }
+	}
+	l = l + "]"	
+	return l
+}
+
+
+function typeahead(data){
+    // // funckja zmieniajaca liste kluczy w wyszukiwarce typeahead
+
+      var typeahead_data_source = new Array();
+
+
+
+      for(var i=0; i<data.length; i++){
+	  if(!data[i].fields.czy_skasowane){
+	      typeahead_data_source.push(new Array(data[i].fields.key.toString(),data[i].pk.toString()))
+	  }
+      }
+
+    localStorage.setItem("typeahead_data_source",JSON.stringify(keys_to_string(typeahead_data_source)).toString());   
+
+}
+
+
+
+
+
+function synchronize(data){
+//   funkcja updatujace baze 
+
+  var max_updated_date = new Date(0,0,0);
+
+
+
+  for(var i=0; i<data.length; i++){
+
+//    jesli skasowane to usunac z localStorage  o ile bylo w local storage
+      if(data[i].fields.czy_skasowane){
+	  localStorage.removeItem("article_"+data[i].pk.toString());
+      }else{
+	  localStorage.setItem("article_"+data[i].pk.toString(),JSON.stringify(data[i].fields));
+
+      }
+
+      var dup = new Date(data[i].fields.data_modyfikacji)
+      if( dup > max_updated_date){
+	   max_updated_date = dup
+      }
+  }
+  
+  localStorage.setItem("last_date",JSON.stringify(max_updated_date));
+
+}
+
+
+
+
+
+
+
+
+
+
+    $(function() {
+
+
+//     localStorage.clear();
+
+
+//     initiation
+    localStorage.setItem("last_date",JSON.stringify(ISODateString(new Date(0,0,0))));
+
+
+    var online = navigator.onLine;
+
+    change_tag(online);
+
+
+
+    $("#download").click(function() {
+
+	    if(online){
+		var d = new Date();
+		var old_d = JSON.parse(localStorage.getItem("last_date"))
+
+// 		#ajax
+		$.get('/integrate_database/'+old_d, function(data) {
+			  localStorage.setItem("last_date",JSON.stringify(ISODateString(d)));
+			  console.log(data);
+			  synchronize(data);
+			  typeahead(data);
+			  alert('Load was performed.');
+
+
+			  
+		});
+	    }else{
+	      alert("You're not online!")
+	    }
+
+
+      });
+
+
+     });
+</script>
+
+
+
+    </body>
+</html> 

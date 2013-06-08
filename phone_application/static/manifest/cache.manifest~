@@ -1,0 +1,19 @@
+CACHE MANIFEST  
+# the above is a required line
+# this is a comment 
+# spaces are ignored
+# blank lines are ignored
+
+CACHE: 
+/*
+/detail/*
+/products/*
+
+FALLBACK:
+
+
+
+
+#The CACHE section describing resources to be cached.
+#The NETWORK section describing resources that can only be accessed online.
+#The FALLBACK section contains only one line specifying what is the resource to be displayed when the user in offline mode tries to access a resource that has not been cached.

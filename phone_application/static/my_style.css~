@@ -1,0 +1,10 @@
+
+
+td,th {
+    text-align: center;
+    }
+    
+    
+td.lefted {
+    text-align:left !important;
+    }    
